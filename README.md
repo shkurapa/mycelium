@@ -114,6 +114,58 @@ mycelium adapter add claude-code
 mycelium adapter add openclaw
 ```
 
+## Metrics Dashboard
+
+Mycelium includes an optional agent metrics dashboard powered by [ClawMetry](https://github.com/vivekchand/clawmetry), providing real-time observability for OpenClaw agents.
+
+### Quick Start
+
+```bash
+cd mycelium-cli
+pnpm run build:metrics                         # install ClawMetry
+mycelium adapter add openclaw --step=otel      # enable OTEL export in openclaw
+mycelium metrics start --otel                  # start dashboard with OTLP receiver
+# → http://localhost:8900
+# then restart your openclaw gateway to pick up the config change
+```
+
+### What you get
+
+- **Flow** — Live animated diagram of messages flowing through channels, brain, tools
+- **Usage** — Token and cost tracking with daily/weekly/monthly breakdowns
+- **Sessions** — Active agent sessions with model, tokens, last activity
+- **Health** — Gateway, disk, memory, uptime checks
+- **Crons** — Scheduled job status and timing
+- **Transcripts** — Chat-bubble UI for reading session histories
+
+### OTLP receiver mode
+
+For richer token metrics (real token counts, cost calculations, model breakdowns), enable OTLP export from OpenClaw to the ClawMetry dashboard:
+
+```bash
+# 1. Configure the local gateway and enable OTEL export
+mycelium adapter add openclaw --step=local-gateway --step=otel
+
+# 2. Start the dashboard with the OTLP receiver enabled
+mycelium metrics start --otel
+```
+
+Steps can be combined (`--step=local-gateway --step=otel`) or run individually. When combined, the gateway restarts once at the end.
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `mycelium adapter add openclaw --step=local-gateway` | Write Mycelium env vars into systemd service |
+| `mycelium adapter add openclaw --step=otel` | Enable OTEL export in `openclaw.json` |
+| `mycelium metrics start` | Start dashboard in background |
+| `mycelium metrics start --fg` | Start in foreground |
+| `mycelium metrics start --otel` | Start with OTLP receiver |
+| `mycelium metrics start --host 0.0.0.0` | Allow remote access |
+| `mycelium metrics stop` | Stop dashboard |
+| `mycelium metrics status` | Check if dashboard is running |
+| `mycelium metrics open` | Open dashboard in browser |
+
 ## Development
 
 ```bash

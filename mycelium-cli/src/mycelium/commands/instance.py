@@ -258,6 +258,17 @@ def status(ctx: typer.Context) -> None:
 
         backend_status, backend_color = status_str(backend_running)
 
+        from mycelium.commands.metrics import (
+            _check_clawmetry,
+            _display_host,
+            _get_host as _metrics_host,
+            _get_port as _metrics_port,
+            _is_running as _metrics_running,
+        )
+        metrics_installed = _check_clawmetry()
+        metrics_running, metrics_pid = _metrics_running()
+        metrics_status_text, metrics_color = status_str(metrics_running)
+
         if json_output:
             import json
 
@@ -267,6 +278,12 @@ def status(ctx: typer.Context) -> None:
                         "url": config.server.api_url,
                         "running": backend_running,
                         "room_count": backend_room_count,
+                    },
+                    "metrics": {
+                        "installed": metrics_installed,
+                        "running": metrics_running,
+                        "pid": metrics_pid,
+                        "url": f"http://{_display_host(_metrics_host())}:{_metrics_port()}" if metrics_running else None,
                     },
                 },
                 "config": {
@@ -284,6 +301,13 @@ def status(ctx: typer.Context) -> None:
             typer.echo(f"             {config.server.api_url}")
             if backend_running and backend_room_count > 0:
                 typer.echo(f"             {backend_room_count} rooms")
+            if metrics_installed:
+                typer.secho(f"  Metrics:   {metrics_status_text}", fg=metrics_color)
+                if metrics_running:
+                    typer.echo(f"             http://{_display_host(_metrics_host())}:{_metrics_port()}")
+            else:
+                typer.secho("  Metrics:   Not installed", dim=True)
+                typer.echo("             pip install 'mycelium-cli[metrics]'")
             typer.echo("")
             typer.echo("Configuration:")
             typer.echo(f"  Path:        {config_path}")

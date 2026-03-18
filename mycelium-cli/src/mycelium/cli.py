@@ -13,6 +13,7 @@ from mycelium.commands import (
     instance,
     memory,
     message,
+    metrics,
     room,
 )
 
@@ -74,6 +75,7 @@ app.add_typer(message.app, name="message")
 app.add_typer(memory.app, name="memory")
 app.add_typer(config.app, name="config")
 app.add_typer(adapter.app, name="adapter")
+app.add_typer(metrics.app, name="metrics")
 app.add_typer(docs.app, name="docs")
 
 
