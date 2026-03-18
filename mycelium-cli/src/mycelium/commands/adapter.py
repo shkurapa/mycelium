@@ -625,6 +625,7 @@ def _configure_otel(port: int | None = None) -> bool:
             "endpoint": endpoint,
             "flushIntervalMs": 5000,
         })
+        otel.setdefault("serviceName", "openclaw-gateway")
 
         config_path.write_text(_json.dumps(cfg, indent=2))
         typer.secho("  ✓ diagnostics-otel enabled in openclaw.json", fg=typer.colors.GREEN)
